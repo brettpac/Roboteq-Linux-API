@@ -102,10 +102,10 @@ void RoboteqDevice::InitPort()
 	newtio.c_oflag = 0;			/* Select the RAW Output Mode through Local options*/
 	newtio.c_cflag |= (CLOCAL | CREAD);	/* Select the Local Mode & Enable Receiver through Control options*/
 
-	//Set Data format to 7E1
+	//Set Data format to 8N1
 	newtio.c_cflag &= ~CSIZE;		/* Mask the Character Size Bits through Control options*/
-	newtio.c_cflag |= CS7;			/* Select Character Size to 7-Bits through Control options*/
-	newtio.c_cflag |= PARENB;		/* Select the Parity Enable through Control options*/
+	newtio.c_cflag |= CS8;			/* Select Character Size to 8-Bits through Control options*/
+	newtio.c_cflag &= ~PARENB;		/* Select Parity Disable through Control options*/
 	newtio.c_cflag &= ~PARODD;		/* Select the Even Parity through Control options*/
 
 	//cwrset.c_iflag |= (INPCK|ISTRIP);
