@@ -88,11 +88,11 @@ void RoboteqDevice::InitPort()
 		return;
 
 	//Get the existing Comm Port Attributes in cwrget
-	int BAUDRATE = B9600;
+	int BAUDRATE = B115200;
 	struct termios newtio;
 	tcgetattr (handle, &newtio);
 
-	//Set the Tx and Rx Baud Rate to 9600
+	//Set the Tx and Rx Baud Rate to 115200
 	cfsetospeed (&newtio, (speed_t)BAUDRATE);
 	cfsetispeed (&newtio, (speed_t)BAUDRATE);
 
