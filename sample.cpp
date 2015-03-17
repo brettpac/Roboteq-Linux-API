@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 {
 	string response = "";
 	RoboteqDevice device;
-	int status = device.Connect("/dev/ttyS0");
+	int status = device.Connect("/dev/ttyACM0");
 
 	if(status != RQ_SUCCESS)
 	{
