@@ -6,6 +6,7 @@
 #include <termios.h>
 #include <time.h>
 #include <sstream>
+#include <unistd.h>
 
 #include "RoboteqDevice.h"
 #include "ErrorCodes.h"
