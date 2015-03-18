@@ -47,7 +47,7 @@ int RoboteqDevice::Connect(string port)
 	}
 
 	cout<<"succeeded."<<endl;
-	fcntl (handle, F_SETFL, O_APPEND | O_NONBLOCK);
+	fcntl (handle, F_SETFL, O_APPEND | O_NONBLOCK & ~FNDELAY);
 
 	cout<<"Initializing port...";
 	InitPort();
