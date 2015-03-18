@@ -56,7 +56,7 @@ int RoboteqDevice::Connect(string port)
 	int status;
 	string response;
 	cout<<"Detecting device version...";
-	status = IssueCommand("?", "FID", 10, response);
+	status = IssueCommand("?", "FID", 50, response);
 	if(status != RQ_SUCCESS)
 	{
 		cout<<"failed (issue ?FID response: "<<status<<")."<<endl;
