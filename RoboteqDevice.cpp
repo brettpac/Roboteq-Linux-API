@@ -120,7 +120,6 @@ void RoboteqDevice::InitPort()
 	newtio.c_cc[VTIME] = 20;
 	
 	/* Flush the Input buffer and set the attribute NOW without waiting for Data to Complete*/
-	tcflush (handle, TCIFLUSH);
 	tcsetattr (handle, TCSANOW, &newtio);	
 }
 
