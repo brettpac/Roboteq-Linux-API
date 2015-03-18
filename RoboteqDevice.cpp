@@ -105,6 +105,8 @@ void RoboteqDevice::InitPort()
 	//Make RAW Mode more explicit by turning Canonical Mode off, Echo off, Echo Erase off and Signals off*/
 	newtio.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
 	
+	//Disable Software Flow Control
+	newtio.c_iflag &= ~(IXON | IXOFF | IXANY);
 	
 	//Set Data format to 8N1
 	newtio.c_cflag &= ~CSIZE;		/* Mask the Character Size Bits through Control options*/
