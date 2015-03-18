@@ -116,7 +116,7 @@ void RoboteqDevice::InitPort()
 	newtio.c_cflag &= ~CSTOPB;		/*Set number of Stop Bits to 1
 
 	
-	//cwrset.c_cc[VMIN] = 6;
+	
 
 /* Flush the Input buffer and set the attribute NOW without waiting for Data to Complete*/
 	tcflush (handle, TCIFLUSH);
