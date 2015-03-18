@@ -113,11 +113,12 @@ void RoboteqDevice::InitPort()
 	newtio.c_cflag |= CS8;			/* Select Character Size to 8-Bits through Control options*/
 	newtio.c_cflag &= ~PARENB;		/* Select Parity Disable through Control options*/
 	newtio.c_cflag &= ~PARODD;		/* Select the Even Parity (Disabled) through Control options*/
-	newtio.c_cflag &= ~CSTOPB;		/*Set number of Stop Bits to 1
+	newtio.c_cflag &= ~CSTOPB;		/*Set number of Stop Bits to 1*/
 
 	
+	newtio.c_cc[VMIN] = 2;
+	newtio.c_cc[VTIME] = 20;
 	
-
 /* Flush the Input buffer and set the attribute NOW without waiting for Data to Complete*/
 	tcflush (handle, TCIFLUSH);
 	tcsetattr (handle, TCSANOW, &newtio);	
