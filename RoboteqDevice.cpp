@@ -102,6 +102,10 @@ void RoboteqDevice::InitPort()
 	newtio.c_oflag = 0;			/* Select the RAW Output Mode through Local options*/
 	newtio.c_cflag |= (CLOCAL | CREAD);	/* Select the Local Mode & Enable Receiver through Control options*/
 
+	//Make RAW Mode more explicit by turning Canonical Mode off, Echo off, Echo Erase off and Signals off*/
+	newtio.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+	
+	
 	//Set Data format to 8N1
 	newtio.c_cflag &= ~CSIZE;		/* Mask the Character Size Bits through Control options*/
 	newtio.c_cflag |= CS8;			/* Select Character Size to 8-Bits through Control options*/
