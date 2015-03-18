@@ -107,7 +107,7 @@ void RoboteqDevice::InitPort()
 	newtio.c_cflag |= CS8;			/* Select Character Size to 8-Bits through Control options*/
 	newtio.c_cflag &= ~PARENB;		/* Select Parity Disable through Control options*/
 	newtio.c_cflag &= ~PARODD;		/* Select the Even Parity (Disabled) through Control options*/
-	newtio.c_cflag |= CSTOPB;		/*Set number of Stop Bits to 1
+	newtio.c_cflag &= ~CSTOPB;		/*Set number of Stop Bits to 1
 
 	//cwrset.c_iflag |= (INPCK|ISTRIP);
 	//cwrset.c_cc[VMIN] = 6;
