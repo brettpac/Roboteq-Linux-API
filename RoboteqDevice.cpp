@@ -112,7 +112,8 @@ void RoboteqDevice::InitPort()
 	//cwrset.c_iflag |= (INPCK|ISTRIP);
 	//cwrset.c_cc[VMIN] = 6;
 
-/* Set the attribute NOW without waiting for Data to Complete*/
+/* Flush the Input buffer and set the attribute NOW without waiting for Data to Complete*/
+	tcflush (handle, TCIFLUSH);
 	tcsetattr (handle, TCSANOW, &newtio);	
 }
 
