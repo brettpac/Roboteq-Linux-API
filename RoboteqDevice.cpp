@@ -56,24 +56,28 @@ int RoboteqDevice::Connect(string port)
 	int status;
 	string response;
 	cout<<"Detecting device version...";
+	int z; 
+	for(z=0;z<5;z++){
 	status = IssueCommand("?", "FID", 50, response);
+		
 	if(status != RQ_SUCCESS)
+	{continue;}
+	if(status = RQ_SUCCESS)
+	{break;}
+	}
+	
+	if(status != RQ_SUCCESS)	
 	{
 		cout<<"failed (issue ?FID response: "<<status<<")."<<endl;
 		Disconnect();
 		return RQ_UNRECOGNIZED_DEVICE;
 	}
-
-	if(response.length() < 12)
-	{
-		cout<<"failed (unrecognized version)."<<endl;
-		Disconnect();
-		return RQ_UNRECOGNIZED_VERSION;
-	}
+	
 
 	cout<<response.substr(8, 4)<<"."<<endl;
 	return RQ_SUCCESS;
 }
+
 void RoboteqDevice::Disconnect()
 {
 	if(IsConnected())
