@@ -115,7 +115,7 @@ void RoboteqDevice::InitPort()
 	newtio.c_cflag &= ~PARODD;		/* Select the Even Parity (Disabled) through Control options*/
 	newtio.c_cflag &= ~CSTOPB;		/*Set number of Stop Bits to 1*/
 
-	//Timout Parameters. Set to 2 characters (VMIN) and 2 second (VTIME) timeout*/
+	//Timout Parameters. Set to 0 characters (VMIN) and 10 second (VTIME) timeout. This was done to prevent the read call from blocking indefinitely.*/
 	newtio.c_cc[VMIN] = 0;
 	newtio.c_cc[VTIME] = 100;
 	
