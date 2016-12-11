@@ -6,7 +6,7 @@ This library derives from improvements made by @brettpac and adds support for Ro
 
 All Get and Set commands now have a `Set__ID()` alternative which sends IDs for RoboCAN compatibility. For example, `SetCommandId()`
 
-`Some parts are still WIP and untested, so may it not work as expected.`
+`Some parts are still WIP and untested, so it may not work as expected.`
 
 The older Readme is as follows
 
