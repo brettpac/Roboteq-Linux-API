@@ -16,7 +16,7 @@ using namespace std;
 #define BUFFER_SIZE 1024
 #define MISSING_VALUE -1024
 
-// #define DEBUG //Enable this to ignore serial port connections and see debug output on console
+// #define ROBOTEQ_DEBUG
 
 RoboteqDevice::RoboteqDevice()
 {
@@ -29,7 +29,7 @@ RoboteqDevice::~RoboteqDevice()
 
 bool RoboteqDevice::IsConnected()
 {
-#ifdef DEBUG
+#ifdef ROBOTEQ_DEBUG
   return true;
 #endif
   return handle != RQ_INVALID_HANDLE;
@@ -39,32 +39,32 @@ int RoboteqDevice::Connect(string port)
 {
   if(IsConnected())
   {
-    cout<<"Device is connected, attempting to disconnect."<<endl;
+    cout<<"[RoboteqDriverLib]Device is connected, attempting to disconnect."<<endl;
     Disconnect();
   }
-#ifdef DEBUG
-  cout<<"Simulating serial connections\n";
+#ifdef ROBOTEQ_DEBUG
+  cout<<"[RoboteqDriverLib]Simulating serial connections\n";
 #endif
-#ifndef DEBUG
+#ifndef ROBOTEQ_DEBUG
   //Open port.
-  cout<<"Opening port: '"<<port<<"'...";
+  cout<<"[RoboteqDriverLib]Opening port: '"<<port<<"'...";
   handle = open(port.c_str(), O_RDWR |O_NOCTTY | O_NDELAY);
   if(handle == RQ_INVALID_HANDLE)
   {
-    cout<<"failed."<<endl;
+    cout<<"[RoboteqDriverLib]failed."<<endl;
     return RQ_ERR_OPEN_PORT;
   }
 
-  cout<<"succeeded."<<endl;
+  cout<<"[RoboteqDriverLib]succeeded."<<endl;
   fcntl (handle, F_SETFL, O_APPEND | O_NONBLOCK & ~FNDELAY);
 
-  cout<<"Initializing port...";
+  cout<<"[RoboteqDriverLib]Initializing port...";
   InitPort();
   cout<<"...done."<<endl;
 
   int status;
   string response;
-  cout<<"Detecting device version...";
+  cout<<"[RoboteqDriverLib]Detecting device version...";
   int z;
 
   for(z=0;z<5;z++){
@@ -78,7 +78,7 @@ int RoboteqDevice::Connect(string port)
 
   if(status != RQ_SUCCESS)
   {
-    cout<<"failed (issue ?FID response: "<<status<<")."<<endl;
+    cout<<"[RoboteqDriverLib]failed (issue ?FID response: "<<status<<")."<<endl;
     Disconnect();
     return RQ_UNRECOGNIZED_DEVICE;
   }
@@ -141,11 +141,13 @@ void RoboteqDevice::InitPort()
 
 int RoboteqDevice::Write(string str)
 {
+  cout<<"[RoboteqDriverLib]=======Inside Write========\n";
   if(!IsConnected())
     return RQ_ERR_NOT_CONNECTED;
+  cout<<"[RoboteqDriverLib]======= Connected  ========\n";
 
-#ifndef DEBUG
-  cout<<"Writing: "<<ReplaceString(str, "\r", "\r\n");
+#ifndef ROBOTEQ_DEBUG
+  cout<<"[RoboteqDriverLib]writing....."<<str;
   int countSent = write(handle, str.c_str(), str.length());
 
   //Verify weather the Transmitting Data on UART was Successful or Not
@@ -153,8 +155,8 @@ int RoboteqDevice::Write(string str)
     return RQ_ERR_TRANSMIT_FAILED;
 #endif
 
-#ifdef DEBUG
-  cout<<"Sending Data on serial="<<str<<"\n";
+#ifdef ROBOTEQ_DEBUG
+  cout<<"[RoboteqDriverLib]Sending Data on serial="<<str<<"\n";
 #endif
 
   return RQ_SUCCESS;
@@ -168,7 +170,7 @@ int RoboteqDevice::ReadAll(string &str)
   char buf[BUFFER_SIZE + 1] = "";
 
   str = "";
-#ifndef DEBUG
+#ifndef ROBOTEQ_DEBUG
   while((countRcv = read(handle, buf, BUFFER_SIZE)) > 0)
   {
     str.append(buf, countRcv);
@@ -187,8 +189,8 @@ int RoboteqDevice::ReadAll(string &str)
   }
 #endif
 
-#ifdef DEBUG
-  cout<<"Simulating Read - \n";
+#ifdef ROBOTEQ_DEBUG
+  cout<<"[RoboteqDriverLib]Simulating Read - \n";
 #endif
 
   return RQ_SUCCESS;
@@ -207,17 +209,23 @@ int RoboteqDevice::IssueCommandId(int id, string commandType, string command, st
 
     sprintf(id_str,"%02d",id);
 
-    if(args == "")
-        status = Write("@" + (string)id_str  + commandType + command + "\r");
-    else
-        status = Write("@" + (string)id_str + commandType + command + " " + args + "\r");
+    string id_stdstr(id_str);
 
+    string cmdstr;
+    if(args == "")
+        cmdstr = ("@" + id_stdstr + commandType + command + "\r");
+    else
+        cmdstr = ("@" + id_stdstr + commandType + command + " " + args + "\r");
+
+    cout<<"[RoboteqDriverLib]Issuing command = "<<cmdstr<<"\n";
+    status = Write(cmdstr);
     if(status != RQ_SUCCESS)
         return status;
-
+    cout<<"[RoboteqDriverLib]Writing done\n\n";
     usleep(waitms * 1000l);
 
     status = ReadAll(read);
+
     if(status != RQ_SUCCESS)
         return status;
 
@@ -239,14 +247,22 @@ int RoboteqDevice::IssueCommandId(int id, string commandType, string command, st
     //
     // How the following code works
     // Find the position of 'AI=' which is (command+"=")
-    // then add command length + 1 to get to the starting index of the actual value
+    // then add command length + 1(for the =) to get to the starting index of the actual value
     // then find the position of '\r', ie the last character
     // now length of the value is last char position - first char position
-
+    //
+    // position of id = original pos - 4 [considering that id is always a 2 digit number]
     string::size_type pos = read.rfind(command + "=");
     if(pos == string::npos)
         return RQ_INVALID_RESPONSE;
 
+    int id_pos = pos - 4;
+    string response_id = read.substr(id_pos, 2); // Id is always 2 digits
+    if(response_id.compare(id_stdstr) == 0) {
+      cout<<"[RoboteqDriverLib]Response and request ids match\n";
+    } else {
+      cout<<"[RoboteqDriverLib]Response and request id mismatch"<< read;
+    }
     pos += command.length() + 1;
 
     string::size_type carriage = read.find("\r", pos);
@@ -401,7 +417,6 @@ int RoboteqDevice::GetValueId(int id, int operatingItem, int &result)
 
 /*
  * No ID Commands
- *
  */
 
 int RoboteqDevice::IssueCommand(string commandType, string command, string args, int waitms, string &response, bool isplusminus)
@@ -424,7 +439,7 @@ int RoboteqDevice::IssueCommand(string commandType, string command, string args,
   if(status != RQ_SUCCESS)
     return status;
 
-#ifndef DEBUG
+#ifndef ROBOTEQ_DEBUG
 // Only check the status if not in debug mode
   if(isplusminus)
   {
@@ -544,7 +559,7 @@ int RoboteqDevice::GetConfig(int configItem, int index, int &result)
   int status = IssueCommand("~", command, args, 10, response);
   if(status != RQ_SUCCESS)
     return status;
-#ifndef DEBUG
+#ifndef ROBOTEQ_DEBUG
   istringstream iss(response);
   iss>>result;
 
