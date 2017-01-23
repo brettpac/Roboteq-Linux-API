@@ -4,10 +4,6 @@ This is forked from the original Roboteq Linux API which has been found to be ou
 
 This library derives from improvements made by @brettpac and adds support for RoboCAN based ID referencing for the motors and Debug support.
 
-All Get and Set commands now have a `Set__ID()` alternative which sends IDs for RoboCAN compatibility. For example, `SetCommandId()`
-
-`Some parts are still WIP and untested, so it may not work as expected.`
-
 The older Readme is as follows
 
 ```

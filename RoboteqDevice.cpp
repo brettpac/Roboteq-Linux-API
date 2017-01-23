@@ -17,6 +17,7 @@ using namespace std;
 #define MISSING_VALUE -1024
 
 // #define ROBOTEQ_DEBUG
+// #define PRINTING_ON
 
 RoboteqDevice::RoboteqDevice()
 {
@@ -84,7 +85,7 @@ int RoboteqDevice::Connect(string port)
   }
 
 
-  cout<<response.substr(8, 4)<<"."<<endl;
+  // cout<<response.substr(8, 4)<<"."<<endl;
 #endif
   return RQ_SUCCESS;
 }
@@ -141,13 +142,14 @@ void RoboteqDevice::InitPort()
 
 int RoboteqDevice::Write(string str)
 {
-  cout<<"[RoboteqDriverLib]=======Inside Write========\n";
+//  cout<<"[RoboteqDriverLib]=======Inside Write========\n";
   if(!IsConnected())
     return RQ_ERR_NOT_CONNECTED;
-  cout<<"[RoboteqDriverLib]======= Connected  ========\n";
 
 #ifndef ROBOTEQ_DEBUG
-  cout<<"[RoboteqDriverLib]writing....."<<str;
+#ifdef PRINTING_ON
+  cout<<"[RoboteqDriverLib]writing....."<<str<<"\n";
+#endif
   int countSent = write(handle, str.c_str(), str.length());
 
   //Verify weather the Transmitting Data on UART was Successful or Not
@@ -216,12 +218,15 @@ int RoboteqDevice::IssueCommandId(int id, string commandType, string command, st
         cmdstr = ("@" + id_stdstr + commandType + command + "\r");
     else
         cmdstr = ("@" + id_stdstr + commandType + command + " " + args + "\r");
-
+#ifdef PRINTING_ON
     cout<<"[RoboteqDriverLib]Issuing command = "<<cmdstr<<"\n";
+#endif
     status = Write(cmdstr);
     if(status != RQ_SUCCESS)
         return status;
-    cout<<"[RoboteqDriverLib]Writing done\n\n";
+#ifdef PRINTING_ON
+    cout<<"[RoboteqDriverLib]Writing done\n";
+#endif
     usleep(waitms * 1000l);
 
     status = ReadAll(read);
@@ -251,18 +256,21 @@ int RoboteqDevice::IssueCommandId(int id, string commandType, string command, st
     // then find the position of '\r', ie the last character
     // now length of the value is last char position - first char position
     //
-    // position of id = original pos - 4 [considering that id is always a 2 digit number]
+    // position of id = original pos - 3 [considering that id is always a 2 digit number]
+
     string::size_type pos = read.rfind(command + "=");
     if(pos == string::npos)
         return RQ_INVALID_RESPONSE;
 
-    int id_pos = pos - 4;
+    int id_pos = pos - 3;
     string response_id = read.substr(id_pos, 2); // Id is always 2 digits
+#ifdef PRINTING_ON
     if(response_id.compare(id_stdstr) == 0) {
-      cout<<"[RoboteqDriverLib]Response and request ids match\n";
+      cout<<"[RoboteqDriverLib]Response and request ids match<<"<<read<<"\n";
     } else {
-      cout<<"[RoboteqDriverLib]Response and request id mismatch"<< read;
+      cout<<"[RoboteqDriverLib]Response and request id mismatch"<<read<<"\n";
     }
+#endif
     pos += command.length() + 1;
 
     string::size_type carriage = read.find("\r", pos);
