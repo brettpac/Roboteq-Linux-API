@@ -10,50 +10,44 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-	string response = "";
-	RoboteqDevice device;
-	int status = device.Connect("/dev/ttyACM0");
+  string response = "";
+  RoboteqDevice device;
+  int status = device.Connect("/dev/ttyUSB0");
 
-	if(status != RQ_SUCCESS)
-	{
-		cout<<"Error connecting to device: "<<status<<"."<<endl;
-		return 1;
-	}
+  if(status != RQ_SUCCESS)
+  {
+    cout<<"Error connecting to device: "<<status<<"."<<endl;
+    return 1;
+  }
 
-	cout<<"- SetConfig(_DINA, 1, 1)...";
-	if((status = device.SetConfig(_DINA, 1, 1)) != RQ_SUCCESS)
-		cout<<"failed --> "<<status<<endl;
-	else
-		cout<<"succeeded."<<endl;
+  cout<<"- SetConfig(_DINA, 1, 1)...";
+  if((status = device.SetConfig(_DINA, 1, 1)) != RQ_SUCCESS)
+    cout<<"failed --> "<<status<<endl;
+  else
+    cout<<"succeeded."<<endl;
 
-	//Wait 10 ms before sending another command to device
-	sleepms(10);
+  //Wait 10 ms before sending another command to device
+  sleepms(10);
 
-	int result;
-	cout<<"- GetConfig(_DINA, 1)...";
-	if((status = device.GetConfig(_DINA, 1, result)) != RQ_SUCCESS)
-		cout<<"failed --> "<<status<<endl;
-	else
-		cout<<"returned --> "<<result<<endl;
+  int result;
 
-	//Wait 10 ms before sending another command to device
-	sleepms(10);
+  // Normal non-id command
+  cout<<"- SetCommand(_GO, 1, 1)...";
+  if((status = device.SetCommand(_GO, 1, 1)) != RQ_SUCCESS)
+    cout<<"failed --> "<<status<<endl;
+  else
+    cout<<"succeeded."<<endl;
 
-	cout<<"- GetValue(_ANAIN, 1)...";
-	if((status = device.GetValue(_ANAIN, 1, result)) != RQ_SUCCESS)
-		cout<<"failed --> "<<status<<endl;
-	else
-		cout<<"returned --> "<<result<<endl;
+  //Wait 10 ms before sending another command to device
+  sleepms(10);
 
-	//Wait 10 ms before sending another command to device
-	sleepms(10);
+  // Command with Ids (For RoboCAN networked controllers)
+  if((status = device.SetCommandId(2, _VAR, 1, 1)) != RQ_SUCCESS)
+    cout<<"failed --> "<<status<<endl;
+  else
+    cout<<"succeeded."<<endl;
 
-	cout<<"- SetCommand(_GO, 1, 1)...";
-	if((status = device.SetCommand(_GO, 1, 1)) != RQ_SUCCESS)
-		cout<<"failed --> "<<status<<endl;
-	else
-		cout<<"succeeded."<<endl;
 
-	device.Disconnect();
-	return 0;
+  device.Disconnect();
+  return 0;
 }
